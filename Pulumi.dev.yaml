@@ -1,0 +1,9 @@
+config:
+  maskthe-cluster-setup:postgresPassword:
+    secure: AAABAK51BxbFV4jQ+RkGWwpQokkCzfheJ7T8s0+F7k1y24ynTj8pyg==
+  maskthe-cluster-setup:postgresUser:
+    secure: AAABAJ4AfTxp0P7oZkEFVQoShDzmUanEHQAOGoAGANYWxz8yOvpr7A==
+  maskthe-cluster-setup:rabbitmqPassword:
+    secure: AAABAKNfS3AFvHwdIcgErfIaBN2xqVgKit83tI0YSkQ+R/4big==
+  maskthe-cluster-setup:rabbitmqUser:
+    secure: AAABANhQB5fN44pu7YljSuZz4k2VmdjOK1m8YTZvudcYgJCW/g==
