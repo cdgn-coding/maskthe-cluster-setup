@@ -30,5 +30,5 @@ In your minikube local cluster, run the following commands
 ```
 make install
 make setup
-make deploygit init
+make deploy
 ```
