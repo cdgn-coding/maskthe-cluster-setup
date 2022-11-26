@@ -1,5 +1,6 @@
 import * as kubernetes from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
+import { baseOptions } from "../config";
 
 const config = new pulumi.Config();
 
@@ -14,11 +15,22 @@ export const rabbitmqService = new kubernetes.apiextensions.CustomResource("rabb
         name: rabbitmqServiceName,
     },
     spec: {
+        replicas: 1,
+        resources: {
+            requests: {
+                cpu: "256m",
+                memory: "256Mi",
+            },
+            limits: {
+                cpu: "256m",
+                memory: "256Mi",
+            }
+        },
         rabbitmq: {
             additionalConfig: pulumi.interpolate`default_user=${rabbitmqUser}\ndefault_pass=${rabbitmqPassword}`
         },
     },
-});
+}, baseOptions);
 
 export const rabbitmqHost = `${rabbitmqServiceName}.default.svc.cluster.local`;
 
@@ -90,5 +102,6 @@ export const rabbitmqMonitoring = new kubernetes.apiextensions.CustomResource("r
         },
     },
 }, {
+    ...baseOptions,
     dependsOn: [rabbitmqService]
 });

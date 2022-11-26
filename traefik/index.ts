@@ -1,4 +1,5 @@
 import * as kubernetes from "@pulumi/kubernetes";
+import { baseOptions } from "../config";
 
 export const traefikDeployment = new kubernetes.apps.v1.Deployment("traefikDeployment", {
     kind: "Deployment",
@@ -59,7 +60,7 @@ export const traefikDeployment = new kubernetes.apps.v1.Deployment("traefikDeplo
             },
         },
     },
-});
+}, baseOptions);
 
 export const traefikService = new kubernetes.core.v1.Service("traefikService", {
     apiVersion: "v1",
@@ -90,6 +91,7 @@ export const traefikService = new kubernetes.core.v1.Service("traefikService", {
         },
     },
 }, {
+    ...baseOptions,
     dependsOn: traefikDeployment
 });
 

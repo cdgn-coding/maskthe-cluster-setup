@@ -2,6 +2,7 @@ import * as k8s from "@pulumi/kubernetes";
 import * as kx from "@pulumi/kubernetesx";
 import { createService } from "./utils";
 import * as pulumi from "@pulumi/pulumi";
+import { baseOptions } from "../config";
 
 export const postgresDatabaseName = "defaultdb";
 export const serviceName = "psql";
@@ -15,7 +16,7 @@ export const postgresSecret = new k8s.core.v1.Secret("postgres", {
         "user": postgresUser,
         "password": postgresPassword
     }
-});
+}, baseOptions);
 
 export const volume = new k8s.core.v1.PersistentVolume("postgres-volume", {
     metadata: {
@@ -30,7 +31,7 @@ export const volume = new k8s.core.v1.PersistentVolume("postgres-volume", {
             path: "/data/pv-postgres"
         }
     },
-});
+}, baseOptions);
 
 export const volumeClaim = new k8s.core.v1.PersistentVolumeClaim("postgres-volume-claim", {
     metadata: {
@@ -44,7 +45,7 @@ export const volumeClaim = new k8s.core.v1.PersistentVolumeClaim("postgres-volum
             }
         },
     },
-});
+}, baseOptions);
 
 const pb = new kx.PodBuilder({
     volumes: [
@@ -91,7 +92,7 @@ const pb = new kx.PodBuilder({
             ],
             livenessProbe: {
                 exec: {
-                    command: ["sh", "-c", `PGPASSWORD=$POSTGRES_PASSWORD psql -w -U "postgres" -d "postgres"  -h 127.0.0.1 -c "SELECT 1"`],
+                    command: ["sh", "-c", `PGPASSWORD=$POSTGRES_PASSWORD  PGUSER=$POSTGRES_USER PGDATABASE=$POSTGRES_DB psql -w -h 127.0.0.1 -c "SELECT 1"`],
                 },
                 initialDelaySeconds: 120,
                 periodSeconds: 10,
@@ -101,7 +102,7 @@ const pb = new kx.PodBuilder({
             },
             readinessProbe: {
                 exec: {
-                    command: ["sh", "-c", `PGPASSWORD=$POSTGRES_PASSWORD psql -w -U "postgres" -d "postgres"  -h 127.0.0.1 -c "SELECT 1"`],
+                    command: ["sh", "-c", `PGPASSWORD=$POSTGRES_PASSWORD  PGUSER=$POSTGRES_USER PGDATABASE=$POSTGRES_DB psql -w -h 127.0.0.1 -c "SELECT 1"`],
                 },
                 initialDelaySeconds: 30,
                 periodSeconds: 10,
@@ -122,7 +123,7 @@ const pb = new kx.PodBuilder({
 // Deploy postgres as a StatefulSet.
 export const postgresDeployment = new kx.Deployment("postgres-deployment", {
     spec: pb.asDeploymentSpec({ replicas: 1 }),
-});
+}, baseOptions);
 
 export const postgresSvc = createService(
     {
@@ -132,7 +133,8 @@ export const postgresSvc = createService(
             name: serviceName,
         },
     },
-    postgresDeployment
+    postgresDeployment,
+    baseOptions
 );
 
 export const postgresClusterIP = postgresSvc.spec.clusterIP;

@@ -1,6 +1,7 @@
 import * as kubernetes from "@pulumi/kubernetes";
+import { baseOptions } from "../config";
 
-export const defaultWhoamiDeployment = new kubernetes.apps.v1.Deployment("defaultWhoamiDeployment", {
+export const whoamiDeployment = new kubernetes.apps.v1.Deployment("whoamiDeployment", {
     kind: "Deployment",
     apiVersion: "apps/v1",
     metadata: {
@@ -35,7 +36,7 @@ export const defaultWhoamiDeployment = new kubernetes.apps.v1.Deployment("defaul
             },
         },
     },
-});
+}, baseOptions);
 
 export const whoamiService = new kubernetes.core.v1.Service("whoamiService", {
     apiVersion: "v1",
@@ -54,7 +55,8 @@ export const whoamiService = new kubernetes.core.v1.Service("whoamiService", {
         },
     },
 }, {
-    dependsOn: defaultWhoamiDeployment
+    ...baseOptions,
+    dependsOn: whoamiDeployment
 });
 
 export const whoamiIngress = new kubernetes.apiextensions.CustomResource("whoami-ingress", {
@@ -82,5 +84,6 @@ export const whoamiIngress = new kubernetes.apiextensions.CustomResource("whoami
         ],
     },
 }, {
+    ...baseOptions,
     dependsOn: whoamiService
 })
