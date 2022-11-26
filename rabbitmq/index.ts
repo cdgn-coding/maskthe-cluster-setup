@@ -22,7 +22,7 @@ export const rabbitmqService = new kubernetes.apiextensions.CustomResource("rabb
 
 export const rabbitmqHost = `${rabbitmqServiceName}.default.svc.cluster.local`;
 
-export const rabbitmqEndpoint = pulumi.interpolate`amqp://user:${rabbitmqPassword}@${rabbitmqServiceName}.default.svc.cluster.local:5672/`;
+export const rabbitmqEndpoint = pulumi.interpolate`amqp://${rabbitmqUser}:${rabbitmqPassword}@${rabbitmqServiceName}.default.svc.cluster.local:5672/`;
 
 export const rabbitmqMonitoring = new kubernetes.apiextensions.CustomResource("rabbitmqMetrics", {
     apiVersion: "monitoring.coreos.com/v1",
