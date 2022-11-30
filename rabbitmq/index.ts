@@ -5,7 +5,7 @@ import { baseOptions } from "../config";
 const config = new pulumi.Config();
 
 export const rabbitmqServiceName = "rabbitmq";
-const rabbitmqUser = config.requireSecret("rabbitmqUser");
+const rabbitmqUser = config.require("rabbitmqUser");
 const rabbitmqPassword = config.requireSecret("rabbitmqPassword");
 
 export const rabbitmqService = new kubernetes.apiextensions.CustomResource("rabbitmqService", {

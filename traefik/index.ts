@@ -1,5 +1,5 @@
 import * as kubernetes from "@pulumi/kubernetes";
-import { baseOptions } from "../config";
+import { baseOptions, currentStack } from "../config";
 
 export const traefikDeployment = new kubernetes.apps.v1.Deployment("traefikDeployment", {
     kind: "Deployment",
@@ -35,12 +35,12 @@ export const traefikDeployment = new kubernetes.apps.v1.Deployment("traefikDeplo
                       '--entrypoints.web.Address=:8000',
                       '--entrypoints.websecure.Address=:4443',
                       '--providers.kubernetescrd',
-                      '--certificatesresolvers.myresolver.acme.tlschallenge',
-                      '--certificatesresolvers.myresolver.acme.email=foo@you.com',
+                      '--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web',
+                      '--certificatesresolvers.myresolver.acme.email=webmaster@maskthe.email',
                       '--certificatesresolvers.myresolver.acme.storage=acme.json',
                       // Please note that this is the staging Let's Encrypt server.
                       // Once you get things working, you should remove that whole line altogether.
-                      '--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory',
+                      // '--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory',
                     ],
                     ports: [
                         {
@@ -62,14 +62,17 @@ export const traefikDeployment = new kubernetes.apps.v1.Deployment("traefikDeplo
     },
 }, baseOptions);
 
-export const traefikService = new kubernetes.core.v1.Service("traefikService", {
-    apiVersion: "v1",
-    kind: "Service",
-    metadata: {
-        name: "traefik",
-    },
-    spec: {
-        ports: [
+const getTraefikServiceType = () => {
+    if (currentStack === "dev") {
+        return kubernetes.core.v1.ServiceSpecType.ClusterIP;
+    }
+    
+    return kubernetes.core.v1.ServiceSpecType.LoadBalancer;
+}
+
+const getTraefikServicePorts = () => {
+    if (currentStack === "dev") {
+        return [
             {
                 protocol: "TCP",
                 name: "web",
@@ -85,7 +88,28 @@ export const traefikService = new kubernetes.core.v1.Service("traefikService", {
                 name: "websecure",
                 port: 4443,
             },
-        ],
+        ];
+    }
+    
+    return [
+        {
+            protocol: "TCP",
+            name: "web",
+            port: 80,
+            targetPort: 8000,
+        },
+    ];
+}
+
+export const traefikService = new kubernetes.core.v1.Service("traefikService", {
+    apiVersion: "v1",
+    kind: "Service",
+    metadata: {
+        name: "traefik",
+    },
+    spec: {
+        type: getTraefikServiceType(),
+        ports: getTraefikServicePorts(),
         selector: {
             app: "traefik",
         },
@@ -95,4 +119,12 @@ export const traefikService = new kubernetes.core.v1.Service("traefikService", {
     dependsOn: traefikDeployment
 });
 
-export const traefikEndpoint = traefikService.spec.clusterIP || traefikService.status.loadBalancer.ingress[0].ip;
+const getTraefikEndpoint = () => {
+    if (currentStack === "dev") {
+        return traefikService.spec.clusterIP
+    }
+    
+    return traefikService.status.loadBalancer.ingress[0].ip;
+}
+
+export const traefikEndpoint = getTraefikEndpoint();

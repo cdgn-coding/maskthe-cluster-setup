@@ -9,7 +9,7 @@ export const serviceName = "psql";
 
 const config = new pulumi.Config();
 const postgresPassword = config.requireSecret("postgresPassword");
-const postgresUser = config.requireSecret("postgresUser");
+const postgresUser = config.require("postgresUser");
 
 export const postgresSecret = new k8s.core.v1.Secret("postgres", {
     stringData: {

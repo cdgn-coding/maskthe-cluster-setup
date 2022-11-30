@@ -7,3 +7,5 @@ const kubernetesStack = new pulumi.StackReference(config.require("kubernetesStac
 const kubeconfig = kubernetesStack.requireOutput("kubeconfig");
 export const k8sProvider = new k8s.Provider("k8s", { kubeconfig: kubeconfig });
 export const baseOptions = { provider: k8sProvider };
+
+export const currentStack = pulumi.getStack();

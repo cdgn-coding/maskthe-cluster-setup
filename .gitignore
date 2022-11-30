@@ -2,3 +2,4 @@
 /node_modules/
 Pulumi.prod.yaml
 kubeconfig.yml
+stack.json
