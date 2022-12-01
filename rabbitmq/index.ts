@@ -19,11 +19,11 @@ export const rabbitmqService = new kubernetes.apiextensions.CustomResource("rabb
         resources: {
             requests: {
                 cpu: "256m",
-                memory: "256Mi",
+                memory: "400Mi",
             },
             limits: {
                 cpu: "256m",
-                memory: "256Mi",
+                memory: "600Mi",
             }
         },
         rabbitmq: {
