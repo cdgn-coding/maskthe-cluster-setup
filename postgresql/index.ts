@@ -61,7 +61,12 @@ const pb = new kx.PodBuilder({
             name: "postgres",
             image: "docker.io/postgres:13.9",
             imagePullPolicy: "IfNotPresent",
-            resources: { requests: { cpu: "128m", memory: "256Mi" } },
+            resources: {
+                requests: {
+                    cpu: "128m",
+                    memory: "256Mi",
+                },
+            },
             env: [
                 {
                     name: "POSTGRES_USER",

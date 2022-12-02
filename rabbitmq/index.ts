@@ -1,6 +1,6 @@
 import * as kubernetes from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
-import { baseOptions } from "../config";
+import { hasMonitoring, baseOptions } from "../config";
 
 const config = new pulumi.Config();
 
@@ -19,12 +19,8 @@ export const rabbitmqService = new kubernetes.apiextensions.CustomResource("rabb
         resources: {
             requests: {
                 cpu: "256m",
-                memory: "400Mi",
+                memory: "256Mi",
             },
-            limits: {
-                cpu: "256m",
-                memory: "600Mi",
-            }
         },
         rabbitmq: {
             additionalConfig: pulumi.interpolate`default_user=${rabbitmqUser}\ndefault_pass=${rabbitmqPassword}`
@@ -36,7 +32,7 @@ export const rabbitmqHost = `${rabbitmqServiceName}.default.svc.cluster.local`;
 
 export const rabbitmqEndpoint = pulumi.interpolate`amqp://${rabbitmqUser}:${rabbitmqPassword}@${rabbitmqServiceName}.default.svc.cluster.local:5672/`;
 
-export const rabbitmqMonitoring = new kubernetes.apiextensions.CustomResource("rabbitmqMetrics", {
+export const rabbitmqMonitoring = hasMonitoring && new kubernetes.apiextensions.CustomResource("rabbitmqMetrics", {
     apiVersion: "monitoring.coreos.com/v1",
     kind: "ServiceMonitor",
     metadata: {

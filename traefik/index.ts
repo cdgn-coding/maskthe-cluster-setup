@@ -56,6 +56,12 @@ export const traefikDeployment = new kubernetes.apps.v1.Deployment("traefikDeplo
                             containerPort: 8080,
                         },
                     ],
+                    resources: {
+                        requests: {
+                            cpu: "100m",
+                            memory: "128Mi",
+                        },
+                    },
                 }],
             },
         },

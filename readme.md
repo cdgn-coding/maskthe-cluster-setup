@@ -28,7 +28,19 @@ The custom resource definitions and helms are created directly using the kuberne
 In your minikube local cluster, run the following commands
 
 ```
-make install
-make setup
-make deploy
+make deploy-minikube
 ```
+
+### RabbitMQ Credentials
+
+| Secret  | Development value |
+|-------|-----------|
+| rabbitmqPassword | user |
+| rabbitmqUser | admin |
+
+### Postgres Credentials
+
+| Secret  | Development value |
+|-------|-----------|
+| postgresUser | admin |
+| postgresPassword | admin |
